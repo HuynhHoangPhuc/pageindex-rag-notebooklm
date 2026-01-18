@@ -1,0 +1,1 @@
+PageIndex uses a vectorless approach for RAG. It builds a tree of the document structure.
