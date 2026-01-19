@@ -61,15 +61,16 @@ class RagClient:
              # Hypothetical usage based on typical RAG SDKs
             response = self.client.chat_completions(
                 messages=messages,
-                document_ids=file_ids, # This is a guess, but common for RAG SDKs
-                model="gemini-1.5-pro" # User mentioned all using gemini. PageIndex might support model selection.
+                doc_id=file_ids, # Correct param found via inspection
+                # model="gemini-1.5-pro" # 'model' param is not in signature, remove it
             )
             return response
-        except TypeError:
-            # Fallback if document_ids not supported in chat_completions, maybe use submit_query
-            print("chat_completions might not support document_ids directly, falling back to simple generation")
-            # In a real scenario I would debug this. 
-            # Let's return a dummy response if it fails for now or try submit_query
-            return self.client.submit_query(query=query, document_ids=file_ids)
+        except TypeError as e:
+            print(f"chat_completions failed: {e}")
+            # Fallback if doc_id not supported in chat_completions, maybe use submit_query
+            # submit_query signature: (doc_id: str, query: str ...)
+            # It seems submit_query takes a SINGLE doc_id string, so we'd need to loop or pick one?
+            # But chat_completions accepts List[str] according to signature.
+            raise e
 
 rag_client = RagClient()
