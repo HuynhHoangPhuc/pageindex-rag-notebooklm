@@ -44,14 +44,15 @@ def upload_file(
     # Upload to PageIndex
     try:
         response = rag_client.upload_file(file_location)
-        # Verify what response structure is. Assuming it has an 'id' or similar.
-        # If response is dict:
-        pageindex_id = getattr(response, 'id', None) or response.get('id')
+        # Check for doc_id in dict or attribute
+        if isinstance(response, dict):
+            pageindex_id = response.get('doc_id') or response.get('id')
+        else:
+            pageindex_id = getattr(response, 'doc_id', None) or getattr(response, 'id', None)
+            
         if not pageindex_id:
-             # If response is just the ID (unlikely) or different structure
-             # For safety in this environment, I'll assume a dummy ID if parsing fails locally
-             # In production, inspect response.
              pageindex_id = "mock_id" 
+             print("Warning: Could not parse doc_id from upload response") 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PageIndex Upload Failed: {str(e)}")
 
