@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { chat } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,13 @@ export function ChatInterface({ selectedFileIds }: { selectedFileIds: string[] }
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages, loading]);
 
     const handleSend = async () => {
         if (!input.trim() || selectedFileIds.length === 0) return;
@@ -85,6 +92,7 @@ export function ChatInterface({ selectedFileIds }: { selectedFileIds: string[] }
                             </div>
                         </div>
                     )}
+                    <div ref={scrollRef} />
                 </div>
             </ScrollArea>
             <div className="p-4 border-t bg-background">
